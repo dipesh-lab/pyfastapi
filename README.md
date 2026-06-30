@@ -3,7 +3,7 @@
 ### Setup for jenkins
 
 ```pip install poetry```
-```poetry new pybasics```
+```poetry new pyfastapi```
 
 ### Add new dependency
 
@@ -15,4 +15,6 @@
 
 ### Run single class by poetry
 
-```poetry run python src/main.py```
+```poetry run uvicorn application/main.py --reload``` # For dev
+
+```poetry run uvicorn application/main.py``` # For prod
