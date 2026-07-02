@@ -1,7 +1,11 @@
 import logging
 
 import uvicorn
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI
+
+from prometheus_fastapi_instrumentator import Instrumentator
+from application.app_injector import container
+from rest.account_endpoints import AccountResource
 
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 ACCESS_LOG_FORMAT = (
@@ -46,17 +50,12 @@ LOGGING_CONFIG = {
     },
 }
 
-app = FastAPI(title="API microservice")
-
 logger = logging.getLogger("main")
 
-@app.get("/")
-async def root(response: Response):
-    logger.info("Root endpoint called")
-    response.headers["Content-Type"] = "application/json"
-    response.status_code = status.HTTP_200_OK
-    return {"message": "API microservice"}
-
-
 if __name__ == "__main__":
+    app = FastAPI(title="API microservice")
+    Instrumentator().instrument(app).expose(app)
+    account_resource = container.get(AccountResource)
+    app.include_router(account_resource.router)
+
     uvicorn.run(app, host="0.0.0.0", port=8000, log_config=LOGGING_CONFIG)
